@@ -33,34 +33,34 @@ type Node struct {
 	inputPins      [1]gpio.IInputPin
 }
 
-func GetNodes() ([NodeCount]*Node, error) {
+func GetNodes() (map[uint]*Node, error) {
 	controller := &gpio.GPIOController{}
 
 	node1, err := newNode(1, [3]uint{0x1FC, 0x1F8, 0x1F3}, [1]uint{0x1F7}, controller)
 	if err != nil {
-		return [4]*Node{}, trace.Wrap(err, "failed to setup node 1")
+		return nil, trace.Wrap(err, "failed to setup node 1")
 	}
 
 	node2, err := newNode(2, [3]uint{0x1FD, 0x1F9, 0x1F2}, [1]uint{0x1F6}, controller)
 	if err != nil {
-		return [4]*Node{}, trace.Wrap(err, "failed to setup node 2")
+		return nil, trace.Wrap(err, "failed to setup node 2")
 	}
 
 	node3, err := newNode(3, [3]uint{0x1FF, 0x1FB, 0x1F0}, [1]uint{0x1F4}, controller)
 	if err != nil {
-		return [4]*Node{}, trace.Wrap(err, "failed to setup node 3")
+		return nil, trace.Wrap(err, "failed to setup node 3")
 	}
 
 	node4, err := newNode(4, [3]uint{0x1FE, 0x1FA, 0x1F1}, [1]uint{0x1F5}, controller)
 	if err != nil {
-		return [4]*Node{}, trace.Wrap(err, "failed to setup node 4")
+		return nil, trace.Wrap(err, "failed to setup node 4")
 	}
 
-	return [4]*Node{
-		node1,
-		node2,
-		node3,
-		node4,
+	return map[uint]*Node{
+		1: node1,
+		2: node2,
+		3: node3,
+		4: node4,
 	}, nil
 }
 

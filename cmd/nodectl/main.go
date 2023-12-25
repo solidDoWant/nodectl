@@ -24,6 +24,7 @@ func main() {
 			listCommand(outLogger),
 			poweronCommand(),
 			poweroffCommand(),
+			rebootCommand(),
 			flashCommand(),
 			consoleCommand(),
 			rescanCommand(),
@@ -81,7 +82,7 @@ func poweronCommand() *cli.Command {
 		}
 
 		for _, nodeNumber := range *providedNodeNumbers {
-			err = nodes[nodeNumber-1].PowerOn()
+			err = nodes[nodeNumber].PowerOn()
 			if err != nil {
 				return trace.Wrap(err, "failed to power on node %d", nodeNumber)
 			}
@@ -108,7 +109,7 @@ func poweroffCommand() *cli.Command {
 		}
 
 		for _, nodeNumber := range *providedNodeNumbers {
-			err = nodes[nodeNumber-1].PowerOff()
+			err = nodes[nodeNumber].PowerOff()
 			if err != nil {
 				return trace.Wrap(err, "failed to power off node %d", nodeNumber)
 			}
@@ -121,6 +122,33 @@ func poweroffCommand() *cli.Command {
 		Name:        "poweroff",
 		Aliases:     []string{"d"},
 		Description: "powers off nodes",
+		Flags:       flags,
+		Action:      action,
+	}
+}
+
+func rebootCommand() *cli.Command {
+	flags, providedNodeNumbers := getNodeSelectionFlags()
+	action := func(ctx *cli.Context) error {
+		nodes, err := node.GetNodes()
+		if err != nil {
+			return trace.Wrap(err, "failed to get all nodes")
+		}
+
+		for _, nodeNumber := range *providedNodeNumbers {
+			err = nodes[nodeNumber].Reboot()
+			if err != nil {
+				return trace.Wrap(err, "failed to power off node %d", nodeNumber)
+			}
+		}
+
+		return nil
+	}
+
+	return &cli.Command{
+		Name:        "reboot",
+		Aliases:     []string{"restart", "r"},
+		Description: "reboots nodes",
 		Flags:       flags,
 		Action:      action,
 	}
@@ -177,7 +205,7 @@ func getNodeSelectionFlags() ([]cli.Flag, *[]uint) {
 					return nil
 				}
 
-				for nodeNumber := uint(0); nodeNumber < node.NodeCount; nodeNumber++ {
+				for nodeNumber := uint(1); nodeNumber <= node.NodeCount; nodeNumber++ {
 					providedNodeNumbers = append(providedNodeNumbers, nodeNumber)
 				}
 
@@ -215,7 +243,7 @@ func consoleCommand() *cli.Command {
 		if err != nil {
 			return trace.Wrap(err, "failed to get all nodes")
 		}
-		node := nodes[providedNodeNumber-1]
+		node := nodes[providedNodeNumber]
 
 		picocomPath, err := exec.LookPath("picocom")
 		if err != nil {
@@ -257,7 +285,7 @@ func consoleCommand() *cli.Command {
 func rescanCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "rescan",
-		Aliases:     []string{"r"},
+		Aliases:     []string{"s"},
 		Description: "triggers a PCIe rescan to look for newly attached nodes",
 		Action: func(ctx *cli.Context) error {
 			err := node.NewPCIeController().RescanAll()
