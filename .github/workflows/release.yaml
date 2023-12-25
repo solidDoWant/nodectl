@@ -25,6 +25,7 @@ jobs:
         run: |
           gh release create "$TAG" \
             --title="${GITHUB_REPOSITORY#*/} ${TAG#v}" \
-            --notes-from-tag \
+            --generate-notes \
             --latest \
             --verify-tag
+          gh release upload "$TAG" output/nodectl
