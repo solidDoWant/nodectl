@@ -1,0 +1,29 @@
+---
+name: Build and cut a new release
+
+on: 
+  push: 
+    tags: 
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions: 
+      contents: write
+    steps:
+      - name: Install Earthly
+        uses: earthly/actions/setup-earthly@v1
+      - name: Checkout the repo
+        uses: actions/checkout@v4
+      - name: Build
+        run: earthly --ci +build-nodectl-release
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release creat "$TAG" \
+            --repo="$GITHUB_REPOSITORY" \
+            --title="${GITHUB_REPOSITORY#*/} ${TAG#v}" \
+            --generate-notes
