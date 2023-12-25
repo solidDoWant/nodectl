@@ -228,7 +228,7 @@ func consoleCommand() *cli.Command {
 		}
 
 		// This does not return at all upon success
-		err = syscall.Exec(picocomPath, []string{"-b", fmt.Sprintf("%d", node.BaudRate()), node.TTYDevicePath()}, os.Environ())
+		err = syscall.Exec(picocomPath, []string{"picocom", "--baud", fmt.Sprintf("%d", node.BaudRate()), node.TTYDevicePath()}, os.Environ())
 		return trace.Wrap(err, "failed to invoke picocom")
 	}
 
