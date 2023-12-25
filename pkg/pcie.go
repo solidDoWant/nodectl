@@ -13,7 +13,7 @@ import (
 const (
 	VendorId      = 0x4586
 	DeviceId      = 0x1234 // TODO
-	sysfsPcieRoot = "/sys/bus/pci/devices/"
+	sysfsPcieRoot = "/sys/bus/pci/"
 )
 
 // TODO eventually replace this with https://github.com/TimRots/gutil-linux/tree/master
@@ -57,13 +57,14 @@ func (pciec *PCIeController) List(activeOnly bool) ([]*BladePcieEntry, error) {
 
 	vendorFileString := fmt.Sprintf("%x", VendorId)
 	deviceFileString := fmt.Sprintf("%x", DeviceId)
-	err := filepath.WalkDir(pciec.pcieRoot, func(path string, d fs.DirEntry, err error) error {
+	searchDirectory := pciec.getDevicesRoot()
+	err := filepath.WalkDir(searchDirectory, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return trace.Wrap(err, "an error occursed while walking over directory")
 		}
 
 		// Skip the root directory itself
-		if path == pciec.pcieRoot {
+		if path == searchDirectory {
 			return nil
 		}
 
@@ -106,5 +107,9 @@ func (pciec *PCIeController) List(activeOnly bool) ([]*BladePcieEntry, error) {
 		return nil
 	})
 
-	return entries, trace.Wrap(err, "failed to walk over PCIe root directory %q", pciec.pcieRoot)
+	return entries, trace.Wrap(err, "failed to walk over PCIe root directory %q", searchDirectory)
+}
+
+func (pciec *PCIeController) getDevicesRoot() string {
+	return filepath.Join(pciec.pcieRoot, "devices")
 }
