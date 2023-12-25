@@ -29,7 +29,7 @@ type INode interface {
 type Node struct {
 	number         uint
 	gpioController gpio.IGPIOController
-	outputPins     [4]gpio.IOutputPin
+	outputPins     [3]gpio.IOutputPin
 	inputPins      [1]gpio.IInputPin
 }
 
