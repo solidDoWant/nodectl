@@ -18,7 +18,7 @@ func main() {
 
 	app := &cli.App{
 		Name:                 "nodectl",
-		Version:              "v0.0.1", // TODO update this via linker flags at some point
+		Version:              "v0.0.2", // TODO update this via linker flags at some point
 		EnableBashCompletion: true,
 		Commands: []*cli.Command{
 			listCommand(outLogger),
