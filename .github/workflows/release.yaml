@@ -8,6 +8,7 @@ on:
 
 jobs:
   build-and-release:
+    name: Build and cut a new release
     runs-on: ubuntu-latest
     permissions: 
       contents: write
@@ -17,7 +18,7 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v4
       - name: Build
-        run: earthly --ci --outputs +build-nodectl-release
+        run: earthly --ci --output +build-nodectl-release
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
