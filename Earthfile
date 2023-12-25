@@ -26,4 +26,10 @@ build-nodectl:
 
 # Builds targeting the Cluster Box platform
 build-nodectl-release:
-    BUILD --platform="linux/mipsle/softfloat" +build-nodectl
+    FROM --platform=$USERPLATFORM alpine:latest
+    COPY --platform="linux/mipsle/softfloat" +build-nodectl/nodectl ./output/nodectl
+
+    # Compress the ELF (this saves a lot of space)
+    RUN apk add upx
+    RUN upx -9 output/nodectl
+    SAVE ARTIFACT output/nodectl AS LOCAL build/nodectl
