@@ -17,7 +17,7 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v4
       - name: Build
-        run: earthly --ci +build-nodectl-release
+        run: earthly --ci --outputs +build-nodectl-release
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
