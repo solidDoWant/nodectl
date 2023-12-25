@@ -25,4 +25,4 @@ build-nodectl:
 
 # Builds targeting the Cluster Box platform
 build-nodectl-release:
-    BUILD --platform="linux/mips/softfloat" +build-nodectl
+    BUILD --platform="linux/mipsle/softfloat" +build-nodectl
