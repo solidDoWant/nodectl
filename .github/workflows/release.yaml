@@ -23,7 +23,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.ref_name }}
         run: |
-          gh release creat "$TAG" \
+          gh release create "$TAG" \
             --repo="$GITHUB_REPOSITORY" \
             --title="${GITHUB_REPOSITORY#*/} ${TAG#v}" \
-            --generate-notes
+            --notes-from-tag \
+            --latest \
+            --verify-tag
