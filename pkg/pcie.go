@@ -12,7 +12,7 @@ import (
 
 const (
 	VendorId      = 0x4586
-	DeviceId      = 0x1234 // TODO
+	DeviceId      = 0xb6f2
 	sysfsPcieRoot = "/sys/bus/pci/"
 )
 
@@ -29,7 +29,7 @@ func (bpe *BladePcieEntry) GetPath() string {
 func (bpe *BladePcieEntry) String() string {
 	// This is hard coded because the vendor (Mixtile) does not appear to actually be a PCI-SIG member, and
 	// is using another org's vendor ID
-	return strings.TrimLeft(bpe.Address, "0000:") + " Network controller: Mixtile Limited Blade 3 (rev 01)"
+	return strings.TrimPrefix(bpe.Address, "0000:") + " Network controller: Mixtile Limited Blade 3 (rev 01)"
 }
 
 type IPCIeController interface {
@@ -55,8 +55,8 @@ func (pciec *PCIeController) RescanAll() error {
 func (pciec *PCIeController) List(activeOnly bool) ([]*BladePcieEntry, error) {
 	entries := make([]*BladePcieEntry, 0)
 
-	vendorFileString := fmt.Sprintf("%x", VendorId)
-	deviceFileString := fmt.Sprintf("%x", DeviceId)
+	vendorFileString := fmt.Sprintf("0x%x", VendorId)
+	deviceFileString := fmt.Sprintf("0x%x", DeviceId)
 	searchDirectory := pciec.getDevicesRoot()
 	err := filepath.WalkDir(searchDirectory, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
