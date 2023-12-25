@@ -24,7 +24,6 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: |
           gh release create "$TAG" \
-            --repo="$GITHUB_REPOSITORY" \
             --title="${GITHUB_REPOSITORY#*/} ${TAG#v}" \
             --notes-from-tag \
             --latest \
