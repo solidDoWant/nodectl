@@ -81,7 +81,7 @@ func poweronCommand() *cli.Command {
 		}
 
 		for _, nodeNumber := range *providedNodeNumbers {
-			err = nodes[nodeNumber].PowerOn()
+			err = nodes[nodeNumber-1].PowerOn()
 			if err != nil {
 				return trace.Wrap(err, "failed to power on node %d", nodeNumber)
 			}
@@ -108,7 +108,7 @@ func poweroffCommand() *cli.Command {
 		}
 
 		for _, nodeNumber := range *providedNodeNumbers {
-			err = nodes[nodeNumber].PowerOff()
+			err = nodes[nodeNumber-1].PowerOff()
 			if err != nil {
 				return trace.Wrap(err, "failed to power off node %d", nodeNumber)
 			}
@@ -164,14 +164,11 @@ func flashCommand() *cli.Command {
 }
 
 func getNodeSelectionFlags() ([]cli.Flag, *[]uint) {
-	allNodesFlagName := "all"
-	nodeFlagName := "node"
-
 	providedNodeNumbers := []uint{}
 
 	return []cli.Flag{
 		&cli.BoolFlag{
-			Name:    allNodesFlagName,
+			Name:    "all",
 			Aliases: []string{"a"},
 			Usage:   "set to select all nodes",
 			Action: func(ctx *cli.Context, b bool) error {
@@ -187,26 +184,24 @@ func getNodeSelectionFlags() ([]cli.Flag, *[]uint) {
 				return nil
 			},
 		},
-		&cli.UintSliceFlag{
-			Name:    nodeFlagName,
+		&cli.UintFlag{
+			Name:    "node",
 			Aliases: []string{"n"},
 			Usage:   "set to select specific nodes",
-			Action: func(ctx *cli.Context, nodeNumbers []uint) error {
-				if len(nodeNumbers) > 0 {
+			Action: func(ctx *cli.Context, nodeNumber uint) error {
+				if len(providedNodeNumbers) > 0 {
 					// This could occur if both the "all" flag and specific node flags are set
 					return nil
 				}
 
-				for _, nodeNumber := range nodeNumbers {
-					if nodeNumber > node.NodeCount {
-						return trace.BadParameter("the node numbers must be less than %d", node.NodeCount)
-					}
-					if nodeNumber < 1 {
-						return trace.BadParameter("the node numbers must be greater than %d", 1)
-					}
+				if nodeNumber > node.NodeCount {
+					return trace.BadParameter("the node numbers must be less than %d", node.NodeCount)
+				}
+				if nodeNumber < 1 {
+					return trace.BadParameter("the node numbers must be greater than %d", 1)
 				}
 
-				providedNodeNumbers = append(providedNodeNumbers, nodeNumbers...)
+				providedNodeNumbers = append(providedNodeNumbers, nodeNumber)
 				return nil
 			},
 		},
@@ -220,7 +215,7 @@ func consoleCommand() *cli.Command {
 		if err != nil {
 			return trace.Wrap(err, "failed to get all nodes")
 		}
-		node := nodes[providedNodeNumber]
+		node := nodes[providedNodeNumber-1]
 
 		picocomPath, err := exec.LookPath("picocom")
 		if err != nil {
