@@ -28,4 +28,4 @@ jobs:
             --generate-notes \
             --latest \
             --verify-tag
-          gh release upload "$TAG" output/nodectl
+          gh release upload "$TAG" build/nodectl
