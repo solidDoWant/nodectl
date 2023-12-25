@@ -20,7 +20,8 @@ build-nodectl:
     # Do the build
     COPY . .
     ENV CGO_ENABLED="0"
-    RUN go build -ldflags="-s -w" -o output/nodectl cmd/nodectl/main.go
+    RUN --mount type=cache,target=$(go env GOCACHE) \
+        go build -ldflags="-s -w" -o output/nodectl cmd/nodectl/main.go
     SAVE ARTIFACT output/nodectl AS LOCAL build/nodectl
 
 # Builds targeting the Cluster Box platform
