@@ -1,6 +1,7 @@
 package gpio
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -29,7 +30,15 @@ func newPin(number uint, isInput bool) (*pin, error) {
 		number: number,
 	}
 
-	err := p.userspaceExportPin()
+	isSetup, err := p.isAlreadySetup()
+	if err != nil {
+		return nil, trace.Wrap(err, "failed to determine if pin %d is already setup", p.Number())
+	}
+	if isSetup {
+		return p, nil
+	}
+
+	err = p.userspaceExportPin()
 	if err != nil {
 		return nil, trace.Wrap(err, "failed to export pin %d for userspace access", p.Number())
 	}
@@ -40,6 +49,18 @@ func newPin(number uint, isInput bool) (*pin, error) {
 	}
 
 	return p, nil
+}
+
+func (p *pin) isAlreadySetup() (bool, error) {
+	_, err := os.Stat(p.getSysfsDirectory())
+	if err == nil {
+		return true, nil
+	}
+	if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+
+	return false, trace.Wrap(err, "failed to check if pin GPIO sysfs directory exists")
 }
 
 func (p *pin) userspaceExportPin() error {
